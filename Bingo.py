@@ -18,14 +18,20 @@ class BingoCmd(cmd.Cmd):
     def do_complete(self, arg):
         "Completes the element of the specified index: complete 1"
         try:
-            bingo_dict[list(bingo_dict.keys())[int(arg)]] = True
+            if int(arg) <= len(bingo_dict):
+                bingo_dict[list(bingo_dict.keys())[int(arg)]] = True
+            else:
+                print("Index out of bounds")
         except ValueError:
             print("Invalid argument")
 
     def do_uncomplete(self, arg):
         "Uncompletes the element of the specified index: uncomplete 1"
         try:
-            bingo_dict[list(bingo_dict.keys())[int(arg)]] = False
+            if int(arg) <= len(bingo_dict):
+                bingo_dict[list(bingo_dict.keys())[int(arg)]] = False
+            else:
+                print("Index out of bounds")
         except ValueError:
             print("Invalid argument")
 
@@ -38,11 +44,21 @@ class BingoCmd(cmd.Cmd):
 
     def do_bingo(self, arg):
         "Outputs your bingo grid"
-        pass
+        for x in range(grid_size):
+            row = str()
+            for y in range(grid_size):
+                if bingo_dict[list(bingo_dict.keys())[(bingo_array[x][y])]]:
+                    row = f"{row}  {(bingo_array[x][y]):02d}"
+                else:
+                    row = f"{row}  ??"
+            print(row)
 
     def do_create_grid(self, arg):
         "Creates a bingo grid of the specified size, argument must be a number: create_grid 5"
         try:
+            global grid_size
+            global bingo_dict
+            global bingo_array
             grid_size = int(arg)
             if len(main_dict) >= grid_size * grid_size:
                 # create bingo array
