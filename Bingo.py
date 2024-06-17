@@ -2,10 +2,12 @@
 import cmd
 # import sys
 import random
+import pickle
 
 main_dict = dict()
 bingo_dict = dict()
 bingo_array = list()
+grid_size = int()
 
 for x in range(50):
     main_dict["pes" + str(x)] = True
@@ -59,6 +61,7 @@ class BingoCmd(cmd.Cmd):
             global grid_size
             global bingo_dict
             global bingo_array
+            bingo_dict = dict()
             grid_size = int(arg)
             if len(main_dict) >= grid_size * grid_size:
                 # create bingo array
@@ -80,10 +83,37 @@ class BingoCmd(cmd.Cmd):
         except ValueError:
             print("Invalid argument")
 
+    def do_save(self, arg):
+        "Saves all data to a file"
+        save()
+
+    def do_load(self, arg):
+        "Loads all data from a previously created file"
+        load()
+
     def do_exit(self, arg):
         "Exits the app"
+        save()
         exit()
 
+
+def save():
+    save_object = (main_dict, bingo_dict, bingo_array, grid_size)
+    with open("objs.pk1", "wb") as f:
+        pickle.dump(save_object, f)
+
+def load():
+    global main_dict
+    global bingo_dict
+    global bingo_array
+    global grid_size
+    try: 
+        with open("objs.pk1", "rb") as f:
+            main_dict, bingo_dict, bingo_array, grid_size = pickle.load(f)
+    except FileNotFoundError:
+        save()
+
+load()
 
 if __name__ == "__main__":
     BingoCmd().cmdloop()
