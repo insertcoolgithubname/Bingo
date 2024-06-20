@@ -1,9 +1,8 @@
-# import click
 import cmd
-# import sys
 import random
 import pickle
 import csv
+from colorama import Fore, Style
 
 main_dict = dict()
 bingo_dict = dict()
@@ -48,8 +47,6 @@ class BingoCmd(cmd.Cmd):
         try:
             if int(arg) <= len(main_dict):
                 if not main_dict[list(main_dict.keys())[int(arg)]]:
-                    # if main_dict[list(main_dict.keys())[int(arg)]] in bingo_dict:
-                    #     bingo_dict[list(main_dict.keys())[int(arg)]] = False
                     main_dict[list(main_dict.keys())[int(arg)]] = True
                     refresh()
                 else:
@@ -64,7 +61,6 @@ class BingoCmd(cmd.Cmd):
         try:
             if int(arg) <= len(main_dict):
                 if main_dict[list(main_dict.keys())[int(arg)]]:
-                    # bingo_dict[list(main_dict.keys())[int(arg)]] = False
                     main_dict[list(main_dict.keys())[int(arg)]] = False
                     refresh()
                 else:
@@ -97,16 +93,16 @@ class BingoCmd(cmd.Cmd):
         for x in bingo_dict:
             main_dict[x] = False
         refresh()
-        
+
     def do_list(self, arg):
         "Outputs a list of all options that are present in your bingo grid"
         index = 0
         completed_options = 0
         print()
         for x in bingo_dict:
-            print(f"{index:02d} {x} {bingo_dict[x]}")
+            print(f"{index:02d} {x} {color(bingo_dict[x])}{bingo_dict[x]}{Style.RESET_ALL}")
             index = index + 1
-            if bingo_dict[x]: 
+            if bingo_dict[x]:
                 completed_options += 1
         print()
         print(f"{completed_options} out of {len(bingo_dict)} completed")
@@ -117,9 +113,9 @@ class BingoCmd(cmd.Cmd):
         completed_options = 0
         print()
         for x in main_dict:
-            print(f"{index:02d} {x} {main_dict[x]}")
+            print(f"{index:02d} {x} {color(main_dict[x])}{main_dict[x]}{Style.RESET_ALL}")
             index = index + 1
-            if main_dict[x]: 
+            if main_dict[x]:
                 completed_options += 1
         print()
         print(f"{completed_options} out of {len(main_dict)} completed")
@@ -131,21 +127,20 @@ class BingoCmd(cmd.Cmd):
             row = str()
             for y in range(grid_size):
                 if bingo_dict[list(bingo_dict.keys())[(bingo_array[x][y])]]:
-                    row = f"{row}  {(bingo_array[x][y]):02d}"
+                    row = f"{row}  {Fore.GREEN}{(bingo_array[x][y]):02d}{Style.RESET_ALL}"
                 else:
-                    row = f"{row}  ??"
+                    row = f"{row}  {Fore.RED}??{Style.RESET_ALL}"
             print(row)
         print()
 
     def do_input_file(self, arg):
-        "Rewrites the full list of options that can end up in your bingo grid with a file in your folder: input_file"
+        "Rewrites the full list of options that can end up in your bingo grid with a file named 'input.csv' in your folder: input_file"
         global main_dict
         main_dict = dict()
         with open("input.csv", "r", encoding="utf-8-sig", newline="") as f:
             csvFile = csv.reader(f)
             for lines in csvFile:
                 main_dict[lines[0]] = False
-
 
     def do_create_grid(self, arg):
         "Creates a bingo grid of the specified size, argument must be a number: create_grid 5"
@@ -207,10 +202,18 @@ def load():
     except FileNotFoundError:
         save()
 
+
 def refresh():
     # Refresh bingo dict with values in main_dict
     for x in bingo_dict:
         bingo_dict[x] = main_dict[x]
+
+
+def color(bool):
+    if bool:
+        return Fore.GREEN
+    else:
+        return Fore.RED
 
 
 load()
