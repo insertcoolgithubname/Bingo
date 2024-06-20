@@ -3,6 +3,7 @@ import cmd
 # import sys
 import random
 import pickle
+import csv
 
 main_dict = dict()
 bingo_dict = dict()
@@ -29,12 +30,43 @@ class BingoCmd(cmd.Cmd):
             print("Invalid argument")
 
     def do_uncomplete(self, arg):
-        "Uncompletes the element of the specified index: uncomplete 1"
+        "Uncompletes the element of the specified index, index is taken from list: uncomplete 1"
         try:
             if int(arg) <= len(bingo_dict):
-                if not bingo_dict[list(bingo_dict.keys())[int(arg)]]:
+                if bingo_dict[list(bingo_dict.keys())[int(arg)]]:
                     bingo_dict[list(bingo_dict.keys())[int(arg)]] = False
                     main_dict[list(bingo_dict.keys())[int(arg)]] = False
+                else:
+                    print(f"Index {arg} already uncompleted")
+            else:
+                print("Index out of bounds")
+        except ValueError:
+            print("Invalid argument")
+
+    def do_complete_fl(self, arg):
+        "Completes the element of the specified index, index is taken from list_full: complete_fl 1"
+        try:
+            if int(arg) <= len(main_dict):
+                if not main_dict[list(main_dict.keys())[int(arg)]]:
+                    # if main_dict[list(main_dict.keys())[int(arg)]] in bingo_dict:
+                    #     bingo_dict[list(main_dict.keys())[int(arg)]] = False
+                    main_dict[list(main_dict.keys())[int(arg)]] = True
+                    refresh()
+                else:
+                    print(f"Index {arg} already completed")
+            else:
+                print("Index out of bounds")
+        except ValueError:
+            print("Invalid argument")
+
+    def do_uncomplete_fl(self, arg):
+        "Uncompletes the element of the specified index, index is taken from list_full: uncomplete_fl 1"
+        try:
+            if int(arg) <= len(main_dict):
+                if main_dict[list(main_dict.keys())[int(arg)]]:
+                    # bingo_dict[list(main_dict.keys())[int(arg)]] = False
+                    main_dict[list(main_dict.keys())[int(arg)]] = False
+                    refresh()
                 else:
                     print(f"Index {arg} already uncompleted")
             else:
@@ -66,7 +98,6 @@ class BingoCmd(cmd.Cmd):
             main_dict[x] = False
         refresh()
         
-
     def do_list(self, arg):
         "Outputs a list of all options that are present in your bingo grid"
         index = 0
@@ -107,9 +138,13 @@ class BingoCmd(cmd.Cmd):
         print()
 
     def do_input_file(self, arg):
-        "Rewrites the full list of options that can end up in your bingo grid, argument must be file location: input_file"
-        for x in range(500):
-            main_dict["pes" + str(x)] = False
+        "Rewrites the full list of options that can end up in your bingo grid with a file in your folder: input_file"
+        global main_dict
+        main_dict = dict()
+        with open("input.csv", "r", encoding="utf-8-sig", newline="") as f:
+            csvFile = csv.reader(f)
+            for lines in csvFile:
+                main_dict[lines[0]] = False
 
 
     def do_create_grid(self, arg):
@@ -118,6 +153,7 @@ class BingoCmd(cmd.Cmd):
             global grid_size
             global bingo_dict
             global bingo_array
+            global main_dict
             grid_size = int(arg)
             bingo_dict = dict()
             if len(main_dict) >= grid_size * grid_size:
