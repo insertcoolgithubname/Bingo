@@ -2,7 +2,9 @@ import cmd
 import random
 import pickle
 import csv
-from colorama import Fore, Style
+from colorama import init, Fore, Style
+
+init()
 
 main_dict = dict()
 bingo_dict = dict()
@@ -11,13 +13,13 @@ grid_size = int()
 
 
 class BingoCmd(cmd.Cmd):
-    intro = "Welcome to Bingo lol"
+    intro = "Welcome to Bingo"
     prompt = "Bingo "
 
     def do_complete(self, arg):
         "Completes the element of the specified index: complete 1"
         try:
-            if int(arg) <= len(bingo_dict):
+            if int(arg) <= len(bingo_dict) and int(arg) >= 0:
                 if not bingo_dict[list(bingo_dict.keys())[int(arg)]]:
                     bingo_dict[list(bingo_dict.keys())[int(arg)]] = True
                     main_dict[list(bingo_dict.keys())[int(arg)]] = True
@@ -31,7 +33,7 @@ class BingoCmd(cmd.Cmd):
     def do_uncomplete(self, arg):
         "Uncompletes the element of the specified index, index is taken from list: uncomplete 1"
         try:
-            if int(arg) <= len(bingo_dict):
+            if int(arg) <= len(bingo_dict) and int(arg) >= 0:
                 if bingo_dict[list(bingo_dict.keys())[int(arg)]]:
                     bingo_dict[list(bingo_dict.keys())[int(arg)]] = False
                     main_dict[list(bingo_dict.keys())[int(arg)]] = False
@@ -45,7 +47,7 @@ class BingoCmd(cmd.Cmd):
     def do_complete_fl(self, arg):
         "Completes the element of the specified index, index is taken from list_full: complete_fl 1"
         try:
-            if int(arg) <= len(main_dict):
+            if int(arg) <= len(main_dict) and int(arg) >= 0:
                 if not main_dict[list(main_dict.keys())[int(arg)]]:
                     main_dict[list(main_dict.keys())[int(arg)]] = True
                     refresh()
@@ -59,7 +61,7 @@ class BingoCmd(cmd.Cmd):
     def do_uncomplete_fl(self, arg):
         "Uncompletes the element of the specified index, index is taken from list_full: uncomplete_fl 1"
         try:
-            if int(arg) <= len(main_dict):
+            if int(arg) <= len(main_dict) and int(arg) >= 0:
                 if main_dict[list(main_dict.keys())[int(arg)]]:
                     main_dict[list(main_dict.keys())[int(arg)]] = False
                     refresh()
@@ -72,27 +74,31 @@ class BingoCmd(cmd.Cmd):
 
     def do_complete_all(self, arg):
         "Completes all options, even those not present in your grid"
-        for x in main_dict:
-            main_dict[x] = True
-        refresh()
+        if confirm():
+            for x in main_dict:
+                main_dict[x] = True
+            refresh()
 
     def do_uncomplete_all(self, arg):
         "Uncompletes all options, even those not present in your grid"
-        for x in main_dict:
-            main_dict[x] = False
-        refresh()
+        if confirm():
+            for x in main_dict:
+                main_dict[x] = False
+            refresh()
 
     def do_complete_grid(self, arg):
         "Completes all options in your grid"
-        for x in bingo_dict:
-            main_dict[x] = True
-        refresh()
+        if confirm():
+            for x in bingo_dict:
+                main_dict[x] = True
+            refresh()
 
     def do_uncomplete_grid(self, arg):
         "Uncompletes all options in your grid"
-        for x in bingo_dict:
-            main_dict[x] = False
-        refresh()
+        if confirm():
+            for x in bingo_dict:
+                main_dict[x] = False
+            refresh()
 
     def do_list(self, arg):
         "Outputs a list of all options that are present in your bingo grid"
@@ -136,40 +142,43 @@ class BingoCmd(cmd.Cmd):
     def do_input_file(self, arg):
         "Rewrites the full list of options that can end up in your bingo grid with a file named 'input.csv' in your folder: input_file"
         global main_dict
-        main_dict = dict()
-        with open("input.csv", "r", encoding="utf-8-sig", newline="") as f:
-            csvFile = csv.reader(f)
-            for lines in csvFile:
-                main_dict[lines[0]] = False
+        if confirm():
+            main_dict = dict()
+            with open("input.csv", "r", encoding="utf-8-sig", newline="") as f:
+                csvFile = csv.reader(f)
+                for lines in csvFile:
+                    main_dict[lines[0]] = False
 
     def do_create_grid(self, arg):
         "Creates a bingo grid of the specified size, argument must be a number: create_grid 5"
-        try:
-            global grid_size
-            global bingo_dict
-            global bingo_array
-            global main_dict
-            grid_size = int(arg)
-            bingo_dict = dict()
-            if len(main_dict) >= grid_size * grid_size:
-                # create bingo array
-                bingo_array = [["empty"]*grid_size for i in range(grid_size)]
-                # create bingo_dict by choosing random indexes from main dict
-                random_main_dict_list = random.sample(range(0, len(main_dict)), grid_size*grid_size)
-                for x in range(grid_size*grid_size):
-                    bingo_dict[list(main_dict.keys())[random_main_dict_list[x]]] = main_dict[list(main_dict.keys())[x]]
-                # fill bingo_array with randomized bingo_dict
-                random_bingo_dict_list = random.sample(range(0, len(bingo_dict)), len(bingo_dict))
-                index = 0
-                for x in range(grid_size):
-                    for y in range(grid_size):
-                        bingo_array[x][y] = random_bingo_dict_list[index]
-                        index = index + 1
+        if confirm():
+            try:
+                global grid_size
+                global bingo_dict
+                global bingo_array
+                global main_dict
+                int(arg)
+                if (len(main_dict) >= grid_size * grid_size) and int(arg) > 0:
+                    grid_size = int(arg)
+                    bingo_dict = dict()
+                    # create bingo array
+                    bingo_array = [["empty"]*grid_size for i in range(grid_size)]
+                    # create bingo_dict by choosing random indexes from main dict
+                    random_main_dict_list = random.sample(range(0, len(main_dict)), grid_size*grid_size)
+                    for x in range(grid_size*grid_size):
+                        bingo_dict[list(main_dict.keys())[random_main_dict_list[x]]] = main_dict[list(main_dict.keys())[x]]
+                    # fill bingo_array with randomized bingo_dict
+                    random_bingo_dict_list = random.sample(range(0, len(bingo_dict)), len(bingo_dict))
+                    index = 0
+                    for x in range(grid_size):
+                        for y in range(grid_size):
+                            bingo_array[x][y] = random_bingo_dict_list[index]
+                            index = index + 1
 
-            else:
-                print("Bingo grid too large")
-        except ValueError:
-            print("Invalid argument")
+                else:
+                    print("Bingo grid too large")
+            except ValueError:
+                print("Invalid argument")
 
     def do_save(self, arg):
         "Saves all data to a file"
@@ -214,6 +223,13 @@ def color(bool):
         return Fore.GREEN
     else:
         return Fore.RED
+
+
+def confirm():
+    if (input("Are you sure: y/n: ")) == "y":
+        return True
+    else:
+        return False
 
 
 load()
