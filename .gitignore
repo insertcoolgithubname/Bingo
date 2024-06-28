@@ -162,3 +162,4 @@ cython_debug/
 # Custom save files
 *.pk1
 input.csv
+BingoFiles/

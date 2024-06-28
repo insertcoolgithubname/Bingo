@@ -9,7 +9,7 @@ init()
 main_dict = dict()
 bingo_dict = dict()
 bingo_array = list()
-grid_size = int()
+grid_size: int = 0
 
 
 class BingoCmd(cmd.Cmd):
@@ -127,7 +127,7 @@ class BingoCmd(cmd.Cmd):
         print(f"{completed_options} out of {len(main_dict)} completed")
 
     def do_bingo(self, arg):
-        "Outputs your bingo grid"
+        "Outputs your bingo grid, indexes"
         print()
         for x in range(grid_size):
             row = str()
@@ -146,8 +146,9 @@ class BingoCmd(cmd.Cmd):
             main_dict = dict()
             with open("input.csv", "r", encoding="utf-8-sig", newline="") as f:
                 csvFile = csv.reader(f)
-                for lines in csvFile:
-                    main_dict[lines[0]] = False
+                for line in csvFile:
+                    main_dict[line[0]] = False
+            refresh()
 
     def do_create_grid(self, arg):
         "Creates a bingo grid of the specified size, argument must be a number: create_grid 5"
