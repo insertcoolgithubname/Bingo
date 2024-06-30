@@ -21,8 +21,8 @@ dependencies = [
 
 
 [tool.setuptools.dynamic]
+version = {attr = "Bingo.VERSION"}
 
 
 [project.scripts]
 bingo = "Bingo:main"
-version = {attr = "Bingo.VERSION"}
