@@ -127,7 +127,7 @@ class BingoCmd(cmd.Cmd):
         print(f"{completed_options} out of {len(main_dict)} completed")
 
     def do_bingo(self, arg):
-        "Outputs your bingo grid, indexes"
+        "Outputs your bingo grid, indexes are referencing list"
         print()
         for x in range(grid_size):
             row = str()
