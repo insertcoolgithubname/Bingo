@@ -2,6 +2,7 @@ import cmd
 import random
 import pickle
 import csv
+import os
 from colorama import init, Fore, Style
 
 init()
@@ -23,12 +24,13 @@ class BingoCmd(cmd.Cmd):
                 if not bingo_dict[list(bingo_dict.keys())[int(arg)]]:
                     bingo_dict[list(bingo_dict.keys())[int(arg)]] = True
                     main_dict[list(bingo_dict.keys())[int(arg)]] = True
+                    print(f"{Fore.GREEN}Sucess{Fore.RESET}")
                 else:
-                    print(f"Index {arg} already completed")
+                    print(f"{Fore.RED}Index {arg} already completed{Fore.RESET}")
             else:
-                print("Index out of bounds")
+                print(f"{Fore.RED}Index out of bounds{Fore.RESET}")
         except ValueError:
-            print("Invalid argument")
+            print(f"{Fore.RED}Invalid argument{Fore.RESET}")
 
     def do_uncomplete(self, arg):
         "Uncompletes the element of the specified index, index is taken from list: uncomplete 1"
@@ -37,12 +39,13 @@ class BingoCmd(cmd.Cmd):
                 if bingo_dict[list(bingo_dict.keys())[int(arg)]]:
                     bingo_dict[list(bingo_dict.keys())[int(arg)]] = False
                     main_dict[list(bingo_dict.keys())[int(arg)]] = False
+                    print(f"{Fore.GREEN}Sucess{Fore.RESET}")
                 else:
-                    print(f"Index {arg} already uncompleted")
+                    print(f"{Fore.RED}Index {arg} already completed{Fore.RESET}")
             else:
-                print("Index out of bounds")
+                print(f"{Fore.RED}Index out of bounds{Fore.RESET}")
         except ValueError:
-            print("Invalid argument")
+            print(f"{Fore.RED}Invalid argument{Fore.RESET}")
 
     def do_complete_fl(self, arg):
         "Completes the element of the specified index, index is taken from list_full: complete_fl 1"
@@ -51,12 +54,13 @@ class BingoCmd(cmd.Cmd):
                 if not main_dict[list(main_dict.keys())[int(arg)]]:
                     main_dict[list(main_dict.keys())[int(arg)]] = True
                     refresh()
+                    print(f"{Fore.GREEN}Sucess{Fore.RESET}")
                 else:
-                    print(f"Index {arg} already completed")
+                    print(f"{Fore.RED}Index {arg} already completed{Fore.RESET}")
             else:
-                print("Index out of bounds")
+                print(f"{Fore.RED}Index out of bounds{Fore.RESET}")
         except ValueError:
-            print("Invalid argument")
+            print(f"{Fore.RED}Invalid argument{Fore.RESET}")
 
     def do_uncomplete_fl(self, arg):
         "Uncompletes the element of the specified index, index is taken from list_full: uncomplete_fl 1"
@@ -65,12 +69,13 @@ class BingoCmd(cmd.Cmd):
                 if main_dict[list(main_dict.keys())[int(arg)]]:
                     main_dict[list(main_dict.keys())[int(arg)]] = False
                     refresh()
+                    print(f"{Fore.GREEN}Sucess{Fore.RESET}")
                 else:
-                    print(f"Index {arg} already uncompleted")
+                    print(f"{Fore.RED}Index {arg} already completed{Fore.RESET}")
             else:
-                print("Index out of bounds")
+                print(f"{Fore.RED}Index out of bounds{Fore.RESET}")
         except ValueError:
-            print("Invalid argument")
+            print(f"{Fore.RED}Invalid argument{Fore.RESET}")
 
     def do_complete_all(self, arg):
         "Completes all options, even those not present in your grid"
@@ -78,6 +83,7 @@ class BingoCmd(cmd.Cmd):
             for x in main_dict:
                 main_dict[x] = True
             refresh()
+            print(f"{Fore.GREEN}Sucess{Fore.RESET}")
 
     def do_uncomplete_all(self, arg):
         "Uncompletes all options, even those not present in your grid"
@@ -85,6 +91,7 @@ class BingoCmd(cmd.Cmd):
             for x in main_dict:
                 main_dict[x] = False
             refresh()
+            print(f"{Fore.GREEN}Sucess{Fore.RESET}")
 
     def do_complete_grid(self, arg):
         "Completes all options in your grid"
@@ -92,6 +99,7 @@ class BingoCmd(cmd.Cmd):
             for x in bingo_dict:
                 main_dict[x] = True
             refresh()
+            print(f"{Fore.GREEN}Sucess{Fore.RESET}")
 
     def do_uncomplete_grid(self, arg):
         "Uncompletes all options in your grid"
@@ -99,6 +107,7 @@ class BingoCmd(cmd.Cmd):
             for x in bingo_dict:
                 main_dict[x] = False
             refresh()
+            print(f"{Fore.GREEN}Sucess{Fore.RESET}")
 
     def do_list(self, arg):
         "Outputs a list of all options that are present in your bingo grid"
@@ -144,11 +153,16 @@ class BingoCmd(cmd.Cmd):
         global main_dict
         if confirm():
             main_dict = dict()
-            with open("input.csv", "r", encoding="utf-8-sig", newline="") as f:
-                csvFile = csv.reader(f)
-                for line in csvFile:
-                    main_dict[line[0]] = False
-            refresh()
+            try:
+                with open("input.csv", "r", encoding="utf-8-sig", newline="") as f:
+                    csvFile = csv.reader(f)
+                    for line in csvFile:
+                        main_dict[line[0]] = False
+                refresh()
+                print(f"{Fore.GREEN}Sucess{Fore.RESET}")
+            except FileNotFoundError:
+                print(f'{Fore.RED}File not found. Create file "input.csv" in '
+                      f'{os.path.dirname(os.path.realpath(__file__))}{Fore.RESET}')
 
     def do_create_grid(self, arg):
         "Creates a bingo grid of the specified size, argument must be a number: create_grid 5"
@@ -175,19 +189,21 @@ class BingoCmd(cmd.Cmd):
                         for y in range(grid_size):
                             bingo_array[x][y] = random_bingo_dict_list[index]
                             index = index + 1
-
+                    print(f"{Fore.GREEN}Sucess{Fore.RESET}")
                 else:
-                    print("Bingo grid too large")
+                    print(f"{Fore.RED}Bingo grid too large{Fore.RESET}")
             except ValueError:
-                print("Invalid argument")
+                print(f"{Fore.RED}Invalid argument{Fore.RESET}")
 
     def do_save(self, arg):
         "Saves all data to a file"
         save()
+        print(f"{Fore.GREEN}Sucess{Fore.RESET}")
 
     def do_load(self, arg):
         "Loads all data from a previously created file"
         load()
+        print(f"{Fore.GREEN}Sucess{Fore.RESET}")
 
     def do_exit(self, arg):
         "Exits the app"
@@ -230,6 +246,7 @@ def confirm():
     if (input("Are you sure: y/n: ")) == "y":
         return True
     else:
+        print("aborting")
         return False
 
 
