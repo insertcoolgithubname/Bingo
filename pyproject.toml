@@ -21,4 +21,4 @@ dependencies = [
 
 
 [project.scripts]
-bingo = "Bingo:main"
+bingo = "bingo:main"
