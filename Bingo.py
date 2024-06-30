@@ -233,7 +233,10 @@ def confirm():
         return False
 
 
-load()
+def main():
+    load()
+    BingoCmd().cmdloop()
+
 
 if __name__ == "__main__":
-    BingoCmd().cmdloop()
+    main()
