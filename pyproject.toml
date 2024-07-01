@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools >= 61.0"]
+requires = ["setuptools >=64.0", "setuptools_scm>=8"]
 build-backend = "setuptools.build_meta"
 
 
@@ -17,7 +17,11 @@ classifiers = [
 ]
 dependencies = [
     "colorama",
+    "xdg_base_dirs",
 ]
+
+
+[tool.setuptools_scm]
 
 
 [project.scripts]

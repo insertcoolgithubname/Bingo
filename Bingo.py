@@ -2,8 +2,9 @@ import cmd
 import random
 import pickle
 import csv
-import os
 from colorama import init, Fore, Style
+from xdg_base_dirs import xdg_data_home
+from pathlib import Path
 
 init()
 
@@ -149,20 +150,19 @@ class BingoCmd(cmd.Cmd):
         print()
 
     def do_input_file(self, arg):
-        "Rewrites the full list of options that can end up in your bingo grid with a file named 'input.csv' in your folder: input_file"
+        "Rewrites the full list of options that can end up in your bingo grid with a file named 'input.csv' in your folder, argument must specify file path: input_file C:/Users/username/path/to/your/file"
         global main_dict
         if confirm():
-            main_dict = dict()
             try:
-                with open("input.csv", "r", encoding="utf-8-sig", newline="") as f:
+                with open(arg+"/input.csv", "r", encoding="utf-8-sig", newline="") as f:
+                    main_dict = dict()
                     csvFile = csv.reader(f)
                     for line in csvFile:
                         main_dict[line[0]] = False
                 refresh()
                 print(f"{Fore.GREEN}Sucess{Fore.RESET}")
             except FileNotFoundError:
-                print(f'{Fore.RED}File not found. Create file "input.csv" in '
-                      f'{os.path.dirname(os.path.realpath(__file__))}{Fore.RESET}')
+                print(f'{Fore.RED}File not found, make sure the path to your file is correct{Fore.RESET}')
 
     def do_create_grid(self, arg):
         "Creates a bingo grid of the specified size, argument must be a number: create_grid 5"
@@ -213,7 +213,9 @@ class BingoCmd(cmd.Cmd):
 
 def save():
     save_object = (main_dict, bingo_dict, bingo_array, grid_size)
-    with open("objs.pk1", "wb") as f:
+    file_path = str(xdg_data_home())
+    Path(file_path+"/bingo").mkdir(parents=True, exist_ok=True)
+    with open(xdg_data_home()/"bingo"/"objs.pk1", "wb") as f:
         pickle.dump(save_object, f)
 
 
@@ -223,7 +225,7 @@ def load():
     global bingo_array
     global grid_size
     try:
-        with open("objs.pk1", "rb") as f:
+        with open(xdg_data_home()/"bingo"/"objs.pk1", "rb") as f:
             main_dict, bingo_dict, bingo_array, grid_size = pickle.load(f)
     except FileNotFoundError:
         save()
