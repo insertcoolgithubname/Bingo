@@ -150,7 +150,7 @@ class BingoCmd(cmd.Cmd):
         print()
 
     def do_input_file(self, arg):
-        "Rewrites the full list of options that can end up in your bingo grid with a file named 'input.csv' in your folder, argument must specify file path: input_file C:/Users/username/path/to/your/file"
+        "Rewrites the full list of options that can end up in your bingo grid with a file named 'input.csv', argument must specify file path: input_file C:/Users/username/path/to/your/file"
         global main_dict
         if confirm():
             try:
@@ -201,7 +201,7 @@ class BingoCmd(cmd.Cmd):
         print(f"{Fore.GREEN}Sucess{Fore.RESET}")
 
     def do_load(self, arg):
-        "Loads all data from a previously created file"
+        "Loads all data from a previously saved file"
         load()
         print(f"{Fore.GREEN}Sucess{Fore.RESET}")
 
