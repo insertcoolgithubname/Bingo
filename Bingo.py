@@ -252,6 +252,25 @@ def confirm():
         return False
 
 
+def dict_index(arg_dict, key):
+    if key in dict(arg_dict).keys():
+        index = list(dict(arg_dict).keys()).index(key)
+        return index
+    else:
+        # not found
+        return (-1)
+
+
+def dict_key(arg_dict, index):
+    # returns key of index in bingo_dict
+    if index <= (len(dict(arg_dict)) - 1):
+        key = list(dict(arg_dict).keys())[index]
+        return key
+    else:
+        # not found
+        return (-1)
+
+
 def main():
     load()
     BingoCmd().cmdloop()
