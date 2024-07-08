@@ -2,7 +2,7 @@ import cmd
 import random
 import pickle
 import csv
-from colorama import init, Fore, Style
+from colorama import init, Fore, Style, Back
 from xdg_base_dirs import xdg_data_home
 from pathlib import Path
 
@@ -12,6 +12,39 @@ main_dict = dict()
 bingo_dict = dict()
 bingo_array = list()
 grid_size: int = 0
+
+
+class Settings():
+    def __init__(self) -> None:
+        self.show_completed = True
+        self.show_format = True
+        self.show_order = True
+        self.show_comment = True
+        self.show_date = True
+
+
+class Bingo():
+    def __init__(self) -> None:
+        self.main_dict = {}
+        self.bingo_dict = {}
+        self.bingo_array = {}
+        self.grid_size: int = 0
+
+
+class BingoElement():
+    def __init__(self) -> None:
+        self.complete = False
+        self.text_format = TextFormat()
+        self.completion_order = -1
+        self.comment: str = ""
+        self.completion_date: str = ""
+
+
+class TextFormat():
+    def __init__(self) -> None:
+        self.text_color = Fore.RESET
+        self.text_style = Style.RESET_ALL
+        self.back_color = Back.RESET
 
 
 class BingoCmd(cmd.Cmd):
