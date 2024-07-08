@@ -6,12 +6,19 @@ from colorama import init, Fore, Style, Back
 from xdg_base_dirs import xdg_data_home
 from pathlib import Path
 
-init()
+init(autoreset=True)
 
 main_dict = dict()
 bingo_dict = dict()
 bingo_array = list()
 grid_size: int = 0
+
+
+def color(bool):
+    if bool:
+        return Fore.GREEN
+    else:
+        return Fore.RED
 
 
 class Settings():
@@ -21,6 +28,27 @@ class Settings():
         self.show_order = True
         self.show_comment = True
         self.show_date = True
+
+    def print_settings(self):
+        print(f"\n1: Show completed tasks: {color(self.show_completed)}{self.show_completed}")
+        print(f"2: Show task format changes: {color(self.show_format)}{self.show_format}")
+        print(f"3: Show task order of completion: {color(self.show_order)}{self.show_order}")
+        print(f"4: Show task comments: {color(self.show_comment)}{self.show_comment}")
+        print(f"5: Show task date of completion: {color(self.show_date)}{self.show_date}\n")
+
+    def flip_setting(self, setting_index):
+        if setting_index == "1":
+            self.show_completed = not self.show_completed
+        elif setting_index == "2":
+            self.show_format = not self.show_format
+        elif setting_index == "3":
+            self.show_order = not self.show_order
+        elif setting_index == "4":
+            self.show_comment = not self.show_comment
+        elif setting_index == "5":
+            self.show_date = not self.show_date
+        else:
+            print(f"{Fore.RED}Wrong setting index")
 
 
 class Bingo():
@@ -238,10 +266,36 @@ class BingoCmd(cmd.Cmd):
         load()
         print(f"{Fore.GREEN}Sucess{Fore.RESET}")
 
+    def do_settings(self, arg):
+        SettingsCmd().cmdloop()
+
     def do_exit(self, arg):
         "Exits the app"
         save()
         exit()
+
+
+my_settings = Settings()
+
+
+class SettingsCmd(cmd.Cmd):
+    prompt = "Settings "
+
+    def preloop(self):
+        my_settings.print_settings()
+
+    def do_exit(self, arg):
+        "Exits settings and returns to bingo"
+        BingoCmd().cmdloop()
+
+    def do_list(self, arg):
+        "Lists all settings"
+        my_settings.print_settings()
+
+    def do_flip(self, arg):
+        "Changes True to False and False to True on the given setting. Also calls list, flip 1"
+        my_settings.flip_setting(arg)
+        my_settings.print_settings()
 
 
 def save():
@@ -268,13 +322,6 @@ def refresh():
     # Refresh bingo dict with values in main_dict
     for x in bingo_dict:
         bingo_dict[x] = main_dict[x]
-
-
-def color(bool):
-    if bool:
-        return Fore.GREEN
-    else:
-        return Fore.RED
 
 
 def confirm():
