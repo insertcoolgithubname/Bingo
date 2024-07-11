@@ -17,6 +17,11 @@ pip install git+https://github.com/insertcoolgithubname/Bingo.git
 - input from your custom csv file
 - create a grid of any size
 - complete the individual assignments and watch them show up on your grid
+- win by connecting the grid sides horizontally, vertically or diagonally
+- change the text color, background color and style of your tasks
+- add comments to your tasks
+- view and change the time and order at which the tasks were completed
+- configure what you want to see in the settings
 
 
 ## Setup
