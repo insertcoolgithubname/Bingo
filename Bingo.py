@@ -25,7 +25,7 @@ def confirm():
     if (input("Are you sure: y/n: ")) == "y":
         return True
     else:
-        print("aborting")
+        print(f"{Fore.RED}aborting")
         return False
 
 
@@ -136,7 +136,7 @@ class Settings():
 
     def get_completion_order(self, arg_key: int, arg_dict: dict, sorted_list: list):
         if self.show_order:
-            if arg_dict[arg_key].complete:
+            if arg_dict[arg_key].complete and arg_dict[arg_key].completion_date.current_time is not None:
                 return (sorted_list.index(arg_dict[arg_key].completion_date.current_time) + 1)
             else:
                 return ""
@@ -156,6 +156,7 @@ class Bingo():
             int(index)
         except ValueError:
             print(f"{Fore.RED}Invalid argument{Fore.RESET}")
+            return False
         else:
             index = int(index)
             if index <= len(dict) and index >= 0:
@@ -167,13 +168,17 @@ class Bingo():
                         self._main_dict[dict_key(arg_dict=dict, index=index)].completion_date = TimeAndDate()
                     self.refresh()
                     print(f"{Fore.GREEN}Success{Fore.RESET}")
+                    return True
                 else:
                     if arg_bool:
                         print(f"{Fore.RED}Index {index} already completed{Fore.RESET}")
+                        return False
                     else:
                         print(f"{Fore.RED}Index {index} already uncompleted{Fore.RESET}")
+                        return False
             else:
                 print(f"{Fore.RED}Index out of bounds{Fore.RESET}")
+                return False
 
     def _list_dict(self, dict: dict):
         # Outputs a list of all options that are present in the grid
@@ -230,6 +235,7 @@ class Bingo():
                 grid_size = int(arg_size)
             except ValueError:
                 print(f"{Fore.RED}Invalid argument{Fore.RESET}")
+                return False
             else:
                 if (len(self._main_dict) >= grid_size * grid_size) and grid_size > 0:
                     self._bingo_dict = {}
@@ -249,8 +255,10 @@ class Bingo():
                             self._bingo_array[x][y] = random_bingo_dict_list[index]
                             index = index + 1
                     print(f"{Fore.GREEN}Success{Fore.RESET}")
+                    return True
                 else:
                     print(f"{Fore.RED}Bingo grid too large{Fore.RESET}")
+                    return False
 
     def input_file(self, path):
         # Rewrites the full list of options that can end up in your bingo grid with a file named 'input.csv'
@@ -264,8 +272,10 @@ class Bingo():
                         self._main_dict[line[0]] = BingoElement()
                 self.refresh()
                 print(f"{Fore.GREEN}Success{Fore.RESET}")
+                return True
             except FileNotFoundError:
                 print(f'{Fore.RED}File not found, make sure the path to your file is correct{Fore.RESET}')
+                return False
 
     def _set_dict_completion(self, arg_dict: dict, arg_bool):
         if confirm():
@@ -277,30 +287,33 @@ class Bingo():
                     arg_dict[x].completion_date = TimeAndDate()
             self.refresh()
             print(f"{Fore.GREEN}Success{Fore.RESET}")
+            return True
+        else:
+            return False
 
     def complete(self, index):
-        self._set_option_completion(dict=self._bingo_dict, index=index, arg_bool=True)
+        return self._set_option_completion(dict=self._bingo_dict, index=index, arg_bool=True)
 
     def uncomplete(self, index):
-        self._set_option_completion(dict=self._bingo_dict, index=index, arg_bool=False)
+        return self._set_option_completion(dict=self._bingo_dict, index=index, arg_bool=False)
 
     def complete_fl(self, index):
-        self._set_option_completion(dict=self._main_dict, index=index, arg_bool=True)
+        return self._set_option_completion(dict=self._main_dict, index=index, arg_bool=True)
 
     def uncomplete_fl(self, index):
-        self._set_option_completion(dict=self._main_dict, index=index, arg_bool=False)
+        return self._set_option_completion(dict=self._main_dict, index=index, arg_bool=False)
 
     def complete_all(self):
-        self._set_dict_completion(arg_dict=self._main_dict, arg_bool=True)
+        return self._set_dict_completion(arg_dict=self._main_dict, arg_bool=True)
 
     def uncomplete_all(self):
-        self._set_dict_completion(arg_dict=self._main_dict, arg_bool=False)
+        return self._set_dict_completion(arg_dict=self._main_dict, arg_bool=False)
 
     def complete_grid(self):
-        self._set_dict_completion(arg_dict=self._bingo_dict, arg_bool=True)
+        return self._set_dict_completion(arg_dict=self._bingo_dict, arg_bool=True)
 
     def uncomplete_grid(self):
-        self._set_dict_completion(arg_dict=self._bingo_dict, arg_bool=False)
+        return self._set_dict_completion(arg_dict=self._bingo_dict, arg_bool=False)
 
     def list(self):
         self._list_dict(dict=self._bingo_dict)
@@ -332,14 +345,18 @@ class Bingo():
             if success:
                 self._main_dict[dict_key(arg_dict=arg_dict, index=index)].text_format.text_color = color
                 self.refresh()
+                return True
             else:
                 print(f"{Fore.RED} Invalid input")
+                return False
+        else:
+            return False
 
     def color_bingo_dict(self, arg_color):
-        self._change_option_color(arg_color=arg_color, arg_dict=self._bingo_dict)
+        return self._change_option_color(arg_color=arg_color, arg_dict=self._bingo_dict)
 
     def color_main_dict(self, arg_color):
-        self._change_option_color(arg_color=arg_color, arg_dict=self._main_dict)
+        return self._change_option_color(arg_color=arg_color, arg_dict=self._main_dict)
 
     def _change_option_style(self, arg_style: str, arg_dict: dict):
         index: str = input("Index which should be colored: ")
@@ -357,14 +374,18 @@ class Bingo():
             if success:
                 self._main_dict[dict_key(arg_dict=arg_dict, index=index)].text_format.text_style = style
                 self.refresh()
+                return True
             else:
                 print(f"{Fore.RED} Invalid input")
+                return False
+        else:
+            return False
 
     def style_bingo_dict(self, arg_style):
-        self._change_option_style(arg_dict=self._bingo_dict, arg_style=arg_style)
+        return self._change_option_style(arg_dict=self._bingo_dict, arg_style=arg_style)
 
     def style_main_dict(self, arg_style):
-        self._change_option_style(arg_dict=self._main_dict, arg_style=arg_style)
+        return self._change_option_style(arg_dict=self._main_dict, arg_style=arg_style)
 
     def _change_background_color(self, arg_color: str, arg_dict: dict):
         index: str = input("Index which should be colored: ")
@@ -390,14 +411,18 @@ class Bingo():
             if success:
                 self._main_dict[dict_key(arg_dict=arg_dict, index=index)].text_format.back_color = color
                 self.refresh()
+                return True
             else:
                 print(f"{Fore.RED} Invalid input")
+                return False
+        else:
+            return False
 
     def color_back_bingo_dict(self, arg_color):
-        self._change_background_color(arg_color=arg_color, arg_dict=self._bingo_dict)
+        return self._change_background_color(arg_color=arg_color, arg_dict=self._bingo_dict)
 
     def color_back_main_dict(self, arg_color):
-        self._change_background_color(arg_color=arg_color, arg_dict=self._main_dict)
+        return self._change_background_color(arg_color=arg_color, arg_dict=self._main_dict)
 
     def _change_option_comment(self, arg_dict: dict, arg_index: str):
         comment: str = input("Enter comment: ")
@@ -405,12 +430,15 @@ class Bingo():
             arg_index = int(arg_index)
             self._main_dict[dict_key(arg_dict=arg_dict, index=arg_index)].comment = comment
             self.refresh()
+            return True
+        else:
+            return False
 
     def comment_bingo_dict(self, arg_index):
-        self._change_option_comment(arg_dict=self._bingo_dict, arg_index=arg_index)
+        return self._change_option_comment(arg_dict=self._bingo_dict, arg_index=arg_index)
 
     def comment_main_dict(self, arg_index):
-        self._change_option_comment(arg_dict=self._main_dict, arg_index=arg_index)
+        return self._change_option_comment(arg_dict=self._main_dict, arg_index=arg_index)
 
     def sort_date_list(self, arg_dict: dict):
         time_list = []
@@ -452,14 +480,17 @@ class Bingo():
                 if not success or not minute >= 0 or not minute <= 60:
                     print(f"{Fore.RED}Invalid input")
                     return False
-                arg_dict[dict_key(arg_dict=arg_dict, index=arg_index)].completion_date.current_time = (
+                self._main_dict[dict_key(arg_dict=arg_dict, index=arg_index)].completion_date.current_time = (
                     datetime.datetime(year=year, hour=hour, minute=minute, day=day, month=month)
                     )
+                self.refresh()
                 print(f"{Fore.GREEN}Success")
                 return True
             else:
                 print(f"{Fore.RED}Index not completed")
                 return False
+        else:
+            return False
 
     def set_bingo_dict_date(self, arg_index):
         return self._set_completion_time(arg_dict=self._bingo_dict, arg_index=arg_index)
@@ -476,8 +507,11 @@ class TimeAndDate():
         self.current_time = datetime.datetime.now()
 
     def get_text(self):
-        return (f"{self.current_time.hour:02d}:{self.current_time.minute:02d} {self.current_time.day}."
-                f"{self.current_time.month} {self.current_time.year}")
+        if self.current_time is not None:
+            return (f"{self.current_time.hour:02d}:{self.current_time.minute:02d} {self.current_time.day}."
+                    f"{self.current_time.month} {self.current_time.year}")
+        else:
+            return ""
 
 
 class BingoElement():
@@ -506,43 +540,43 @@ class BingoCmd(cmd.Cmd):
 
     def do_complete(self, arg):
         "Completes the element of the specified index: complete 1"
-        my_bingo.complete(arg)
-        my_bingo.list()
+        if my_bingo.complete(arg):
+            my_bingo.list()
 
     def do_uncomplete(self, arg):
         "Uncompletes the element of the specified index, index is taken from list: uncomplete 1"
-        my_bingo.uncomplete(arg)
-        my_bingo.list()
+        if my_bingo.uncomplete(arg):
+            my_bingo.list()
 
     def do_complete_fl(self, arg):
         "Completes the element of the specified index, index is taken from list_full: complete_fl 1"
-        my_bingo.complete_fl(arg)
-        my_bingo.full_list()
+        if my_bingo.complete_fl(arg):
+            my_bingo.full_list()
 
     def do_uncomplete_fl(self, arg):
         "Uncompletes the element of the specified index, index  is taken from list_full: uncomplete_fl 1"
-        my_bingo.uncomplete_fl(arg)
-        my_bingo.full_list()
+        if my_bingo.uncomplete_fl(arg):
+            my_bingo.full_list()
 
     def do_complete_all(self, arg):
         "Completes all options, even those not present in your grid"
-        my_bingo.complete_all()
-        my_bingo.full_list()
+        if my_bingo.complete_all():
+            my_bingo.full_list()
 
     def do_uncomplete_all(self, arg):
         "Uncompletes all options, even those not present in your grid"
-        my_bingo.uncomplete_all()
-        my_bingo.full_list()
+        if my_bingo.uncomplete_all():
+            my_bingo.full_list()
 
     def do_complete_grid(self, arg):
         "Completes all options in your grid"
-        my_bingo.complete_grid()
-        my_bingo.list()
+        if my_bingo.complete_grid():
+            my_bingo.list()
 
     def do_uncomplete_grid(self, arg):
         "Uncompletes all options in your grid"
-        my_bingo.uncomplete_grid()
-        my_bingo.list()
+        if my_bingo.uncomplete_grid():
+            my_bingo.list()
 
     def do_list(self, arg):
         "Outputs a list of all options that are present in your bingo grid"
@@ -559,13 +593,13 @@ class BingoCmd(cmd.Cmd):
     def do_input_file(self, arg):
         """Rewrites the full list of options that can end up in your bingo grid with a file named 'input.csv'
         argument must specify file path: input_file C:/Users/username/path/to/your/file"""
-        my_bingo.input_file(arg)
-        my_bingo.full_list()
+        if my_bingo.input_file(arg):
+            my_bingo.full_list()
 
     def do_create_grid(self, arg):
         "Creates a bingo grid of the specified size, argument must be a number: create_grid 5"
-        my_bingo.create_bingo_array(arg_size=arg)
-        my_bingo.list()
+        if my_bingo.create_bingo_array(arg_size=arg):
+            my_bingo.list()
 
     def do_save(self, arg):
         "Saves all data to a file"
@@ -584,50 +618,50 @@ class BingoCmd(cmd.Cmd):
     def do_color(self, arg):
         """Colors the index of list by the given color, argument is color, the index will be asked later: color red
         Available options: red, blue, cyan, green, magenta, yellow, normal"""
-        my_bingo.color_bingo_dict(arg_color=arg)
-        my_bingo.list()
+        if my_bingo.color_bingo_dict(arg_color=arg):
+            my_bingo.list()
 
     def do_color_fl(self, arg):
         """Colors the index of full_list by the given color, argument is color, the index will be asked later: color red
         Available options: red, blue, cyan, green, magenta, yellow, normal"""
-        my_bingo.color_main_dict(arg_color=arg)
-        my_bingo.full_list()
+        if my_bingo.color_main_dict(arg_color=arg):
+            my_bingo.full_list()
 
     def do_style(self, arg):
         """Sets the style of text on the index of list, argument is style, index will be asked later: style bright
         Available options: bright, dim, normal"""
-        my_bingo.style_bingo_dict(arg_style=arg)
-        my_bingo.list()
+        if my_bingo.style_bingo_dict(arg_style=arg):
+            my_bingo.list()
 
     def do_style_fl(self, arg):
         """Sets the style of text on the index of list, argument is style, index will be asked later: style bright
         Available options: bright, dim, normal"""
-        my_bingo.style_main_dict(arg_style=arg)
-        my_bingo.full_list()
+        if my_bingo.style_main_dict(arg_style=arg):
+            my_bingo.full_list()
 
     def do_color_back(self, arg):
         """Colors the index of full_list by the given background color, argument is color
         the index will be asked later: color red
         Available options: red, blue, cyan, green, magenta, yellow, normal"""
-        my_bingo.color_back_bingo_dict(arg_color=arg)
-        my_bingo.list()
+        if my_bingo.color_back_bingo_dict(arg_color=arg):
+            my_bingo.list()
 
     def do_color_back_fl(self, arg):
         """Colors the index of full_list by the given background color, argument is color
         the index will be asked later: color red
         Available options: red, blue, cyan, green, magenta, yellow, normal"""
-        my_bingo.color_back_main_dict(arg_color=arg)
-        my_bingo.full_list()
+        if my_bingo.color_back_main_dict(arg_color=arg):
+            my_bingo.full_list()
 
     def do_comment(self, arg):
         "Adds a custom comment to the option, argument is index from list: comment 1"
-        my_bingo.comment_bingo_dict(arg)
-        my_bingo.list()
+        if my_bingo.comment_bingo_dict(arg):
+            my_bingo.list()
 
     def do_comment_fl(self, arg):
         "Adds a custom comment to the option, argument is index from full_list: comment 1"
-        my_bingo.comment_main_dict(arg)
-        my_bingo.full_list()
+        if my_bingo.comment_main_dict(arg):
+            my_bingo.full_list()
 
     def do_change_date(self, arg):
         "Changes the completion date of index of list, date will be asked later: change_date 5"
