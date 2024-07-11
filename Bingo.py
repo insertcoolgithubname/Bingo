@@ -9,6 +9,7 @@ from os.path import exists
 from os import remove
 import sys
 import datetime
+from calendar import monthrange
 
 init(autoreset=True)
 
@@ -66,6 +67,14 @@ def get_time():
     formated_time = (f"{current_time.hour}:{current_time.minute} "
                      f"{current_time.day}.{current_time.month} {current_time.year}")
     return formated_time
+
+
+def to_int(arg_string: str):
+    if arg_string.isdigit():
+        arg_string = int(arg_string)
+        return True, arg_string
+    else:
+        return False, arg_string
 
 
 class Settings():
@@ -131,6 +140,8 @@ class Settings():
                 return (sorted_list.index(arg_dict[arg_key].completion_date.current_time) + 1)
             else:
                 return ""
+        else:
+            return ""
 
 
 class Bingo():
@@ -155,7 +166,7 @@ class Bingo():
                     else:
                         self._main_dict[dict_key(arg_dict=dict, index=index)].completion_date = TimeAndDate()
                     self.refresh()
-                    print(f"{Fore.GREEN}Sucess{Fore.RESET}")
+                    print(f"{Fore.GREEN}Success{Fore.RESET}")
                 else:
                     if arg_bool:
                         print(f"{Fore.RED}Index {index} already completed{Fore.RESET}")
@@ -237,7 +248,7 @@ class Bingo():
                         for y in range(grid_size):
                             self._bingo_array[x][y] = random_bingo_dict_list[index]
                             index = index + 1
-                    print(f"{Fore.GREEN}Sucess{Fore.RESET}")
+                    print(f"{Fore.GREEN}Success{Fore.RESET}")
                 else:
                     print(f"{Fore.RED}Bingo grid too large{Fore.RESET}")
 
@@ -252,7 +263,7 @@ class Bingo():
                     for line in csvFile:
                         self._main_dict[line[0]] = BingoElement()
                 self.refresh()
-                print(f"{Fore.GREEN}Sucess{Fore.RESET}")
+                print(f"{Fore.GREEN}Success{Fore.RESET}")
             except FileNotFoundError:
                 print(f'{Fore.RED}File not found, make sure the path to your file is correct{Fore.RESET}')
 
@@ -265,7 +276,7 @@ class Bingo():
                 else:
                     arg_dict[x].completion_date = TimeAndDate()
             self.refresh()
-            print(f"{Fore.GREEN}Sucess{Fore.RESET}")
+            print(f"{Fore.GREEN}Success{Fore.RESET}")
 
     def complete(self, index):
         self._set_option_completion(dict=self._bingo_dict, index=index, arg_bool=True)
@@ -411,6 +422,51 @@ class Bingo():
         time_list = sorted(time_list)
         return time_list
 
+    def _set_completion_time(self, arg_dict: dict, arg_index: str):
+        if check_input(arg_index=arg_index, arg_list=arg_dict):
+            arg_index = int(arg_index)
+            if arg_dict[dict_key(arg_dict=arg_dict, index=arg_index)].complete:
+                current_time = datetime.datetime.now()
+                year = input("Enter year: ")
+                success, year = to_int(year)
+                if not success or not year >= 1 or not year <= int(current_time.year):
+                    print(f"{Fore.RED}Invalid input")
+                    return False
+                month = input("Enter month: ")
+                success, month = to_int(month)
+                if not success or not month >= 0 or not month <= 12:
+                    print(f"{Fore.RED}Invalid input")
+                    return False
+                day = input("Enter day: ")
+                success, day = to_int(day)
+                if not success or not day >= 0 or not day <= monthrange(year, month)[1]:
+                    print(f"{Fore.RED}Invalid input")
+                    return False
+                hour = input("Enter hour: ")
+                success, hour = to_int(hour)
+                if not success or not hour >= 0 or not hour <= 24:
+                    print(f"{Fore.RED}Invalid input")
+                    return False
+                minute = input("Enter minute: ")
+                success, minute = to_int(minute)
+                if not success or not minute >= 0 or not minute <= 60:
+                    print(f"{Fore.RED}Invalid input")
+                    return False
+                arg_dict[dict_key(arg_dict=arg_dict, index=arg_index)].completion_date.current_time = (
+                    datetime.datetime(year=year, hour=hour, minute=minute, day=day, month=month)
+                    )
+                print(f"{Fore.GREEN}Success")
+                return True
+            else:
+                print(f"{Fore.RED}Index not completed")
+                return False
+
+    def set_bingo_dict_date(self, arg_index):
+        return self._set_completion_time(arg_dict=self._bingo_dict, arg_index=arg_index)
+
+    def set_main_dict_date(self, arg_index):
+        return self._set_completion_time(arg_dict=self._main_dict, arg_index=arg_index)
+
 
 class TimeAndDate():
     def __init__(self) -> None:
@@ -420,7 +476,7 @@ class TimeAndDate():
         self.current_time = datetime.datetime.now()
 
     def get_text(self):
-        return (f"{self.current_time.hour}:{self.current_time.minute} {self.current_time.day}."
+        return (f"{self.current_time.hour:02d}:{self.current_time.minute:02d} {self.current_time.day}."
                 f"{self.current_time.month} {self.current_time.year}")
 
 
@@ -451,34 +507,42 @@ class BingoCmd(cmd.Cmd):
     def do_complete(self, arg):
         "Completes the element of the specified index: complete 1"
         my_bingo.complete(arg)
+        my_bingo.list()
 
     def do_uncomplete(self, arg):
         "Uncompletes the element of the specified index, index is taken from list: uncomplete 1"
         my_bingo.uncomplete(arg)
+        my_bingo.list()
 
     def do_complete_fl(self, arg):
         "Completes the element of the specified index, index is taken from list_full: complete_fl 1"
         my_bingo.complete_fl(arg)
+        my_bingo.full_list()
 
     def do_uncomplete_fl(self, arg):
         "Uncompletes the element of the specified index, index  is taken from list_full: uncomplete_fl 1"
         my_bingo.uncomplete_fl(arg)
+        my_bingo.full_list()
 
     def do_complete_all(self, arg):
         "Completes all options, even those not present in your grid"
         my_bingo.complete_all()
+        my_bingo.full_list()
 
     def do_uncomplete_all(self, arg):
         "Uncompletes all options, even those not present in your grid"
         my_bingo.uncomplete_all()
+        my_bingo.full_list()
 
     def do_complete_grid(self, arg):
         "Completes all options in your grid"
         my_bingo.complete_grid()
+        my_bingo.list()
 
     def do_uncomplete_grid(self, arg):
         "Uncompletes all options in your grid"
         my_bingo.uncomplete_grid()
+        my_bingo.list()
 
     def do_list(self, arg):
         "Outputs a list of all options that are present in your bingo grid"
@@ -496,20 +560,22 @@ class BingoCmd(cmd.Cmd):
         """Rewrites the full list of options that can end up in your bingo grid with a file named 'input.csv'
         argument must specify file path: input_file C:/Users/username/path/to/your/file"""
         my_bingo.input_file(arg)
+        my_bingo.full_list()
 
     def do_create_grid(self, arg):
         "Creates a bingo grid of the specified size, argument must be a number: create_grid 5"
         my_bingo.create_bingo_array(arg_size=arg)
+        my_bingo.list()
 
     def do_save(self, arg):
         "Saves all data to a file"
         save()
-        print(f"{Fore.GREEN}Sucess{Fore.RESET}")
+        print(f"{Fore.GREEN}Success{Fore.RESET}")
 
     def do_load(self, arg):
         "Loads all data from a previously saved file"
         load()
-        print(f"{Fore.GREEN}Sucess{Fore.RESET}")
+        print(f"{Fore.GREEN}Success{Fore.RESET}")
 
     def do_settings(self, arg):
         "Opens the settings allowing you to change them"
@@ -519,41 +585,59 @@ class BingoCmd(cmd.Cmd):
         """Colors the index of list by the given color, argument is color, the index will be asked later: color red
         Available options: red, blue, cyan, green, magenta, yellow, normal"""
         my_bingo.color_bingo_dict(arg_color=arg)
+        my_bingo.list()
 
     def do_color_fl(self, arg):
         """Colors the index of full_list by the given color, argument is color, the index will be asked later: color red
         Available options: red, blue, cyan, green, magenta, yellow, normal"""
         my_bingo.color_main_dict(arg_color=arg)
+        my_bingo.full_list()
 
     def do_style(self, arg):
         """Sets the style of text on the index of list, argument is style, index will be asked later: style bright
         Available options: bright, dim, normal"""
         my_bingo.style_bingo_dict(arg_style=arg)
+        my_bingo.list()
 
     def do_style_fl(self, arg):
         """Sets the style of text on the index of list, argument is style, index will be asked later: style bright
         Available options: bright, dim, normal"""
         my_bingo.style_main_dict(arg_style=arg)
+        my_bingo.full_list()
 
     def do_color_back(self, arg):
         """Colors the index of full_list by the given background color, argument is color
         the index will be asked later: color red
         Available options: red, blue, cyan, green, magenta, yellow, normal"""
         my_bingo.color_back_bingo_dict(arg_color=arg)
+        my_bingo.list()
 
     def do_color_back_fl(self, arg):
         """Colors the index of full_list by the given background color, argument is color
         the index will be asked later: color red
         Available options: red, blue, cyan, green, magenta, yellow, normal"""
         my_bingo.color_back_main_dict(arg_color=arg)
+        my_bingo.full_list()
 
     def do_comment(self, arg):
         "Adds a custom comment to the option, argument is index from list: comment 1"
         my_bingo.comment_bingo_dict(arg)
+        my_bingo.list()
 
     def do_comment_fl(self, arg):
         "Adds a custom comment to the option, argument is index from full_list: comment 1"
         my_bingo.comment_main_dict(arg)
+        my_bingo.full_list()
+
+    def do_change_date(self, arg):
+        "Changes the completion date of index of list, date will be asked later: change_date 5"
+        if my_bingo.set_bingo_dict_date(arg_index=arg):
+            my_bingo.list()
+
+    def do_change_date_fl(self, arg):
+        "Changes the completion date of index of full_list, date will be asked later: change_date_fl 5"
+        if my_bingo.set_main_dict_date(arg_index=arg):
+            my_bingo.full_list()
 
     def do_exit(self, arg):
         "Exits the app"
@@ -569,6 +653,7 @@ class SettingsCmd(cmd.Cmd):
 
     def do_exit(self, arg):
         "Exits settings and returns to bingo"
+        save_settings()
         BingoCmd().cmdloop()
 
     def do_list(self, arg):
