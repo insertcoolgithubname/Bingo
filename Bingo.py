@@ -217,7 +217,6 @@ class Bingo():
         for x in range(grid_size):
             row = str()
             for y in range(grid_size):
-                # if bingo_dict[list(bingo_dict.keys())[(self.bingo_array[x][y])]]:
                 if self._bingo_dict[dict_key(arg_dict=self._bingo_dict, index=self._bingo_array[x][y])].complete:
                     if my_settings.show_index_in_grid:
                         row = f"{row}   {Fore.GREEN}{(self._bingo_array[x][y]):02d}{Style.RESET_ALL}"
@@ -227,6 +226,8 @@ class Bingo():
                     row = f"{row}   {Fore.RED}??{Style.RESET_ALL}"
             print(f"{row}\n")
         print("")
+        if self.check_for_victory():
+            print(f"{Fore.GREEN}Bingo!\n")
 
     def create_bingo_array(self, arg_size):
         "Creates a bingo grid of the specified size, argument must be a number: create_grid 5"
@@ -497,6 +498,56 @@ class Bingo():
 
     def set_main_dict_date(self, arg_index):
         return self._set_completion_time(arg_dict=self._main_dict, arg_index=arg_index)
+
+    def check_for_victory(self):
+        grid_size = len(self._bingo_array[0])
+        success = True
+        for x in range(grid_size):
+            for y in range(grid_size):
+                current_index = self._bingo_array[x][y]
+                current_complete = self._bingo_dict[dict_key(arg_dict=self._bingo_dict, index=current_index)].complete
+                if current_complete:
+                    success = True
+                else:
+                    success = False
+                    break
+            if success:
+                return True
+        for x in range(grid_size):
+            for y in range(grid_size):
+                current_index = self._bingo_array[y][x]
+                current_complete = self._bingo_dict[dict_key(arg_dict=self._bingo_dict, index=current_index)].complete
+                if current_complete:
+                    success = True
+                else:
+                    success = False
+                    break
+            if success:
+                return True
+        for i in range(grid_size):
+            x = 0 + i
+            y = 0 + i
+            current_index = self._bingo_array[x][y]
+            current_complete = self._bingo_dict[dict_key(arg_dict=self._bingo_dict, index=current_index)].complete
+            if current_complete:
+                success = True
+            else:
+                success = False
+                break
+        if success:
+            return True
+        for i in range(grid_size):
+            x = 0 + i
+            y = grid_size - i - 1
+            current_index = self._bingo_array[x][y]
+            current_complete = self._bingo_dict[dict_key(arg_dict=self._bingo_dict, index=current_index)].complete
+            if current_complete:
+                success = True
+            else:
+                success = False
+                break
+        if success:
+            return True
 
 
 class TimeAndDate():
